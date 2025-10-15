@@ -31,6 +31,7 @@ export default function ClientsPage() {
     projects: [],
     preferences: { notifications: true, theme: "light" },
     billing: { plan: "basic" },
+    documents: [],
   });
 
   const openModal = (clientId: string, project?: Project) => {
@@ -112,6 +113,7 @@ export default function ClientsPage() {
         projects: [],
         preferences: { notifications: true, theme: "light" },
         billing: { plan: "basic" },
+        documents: [],
       });
     }
     setShowClientModal(true);
