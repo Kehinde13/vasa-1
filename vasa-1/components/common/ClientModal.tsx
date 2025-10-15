@@ -35,6 +35,7 @@ export const AddClientModal: React.FC<AddClientModalProps> = ({
       billing: {
         plan,
       },
+      documents: [],
     };
 
     onSave(newClient);
