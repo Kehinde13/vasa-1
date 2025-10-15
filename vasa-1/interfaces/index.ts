@@ -30,21 +30,30 @@ export interface ProjectModalProps {
   isEditing: boolean;
 }
 
+export interface DocumentFile {
+  id: string;
+  name: string;
+  type: string;
+  uploadDate: string;
+  url?: string; // later connect to storage
+}
 
-export type Client = {
+export interface Client {
   id: string;
   name: string;
   email: string;
-  status: Status;
+  status: string;
+  projects: Project[];
   preferences: {
-    notifications: boolean;
     theme: string;
+    notifications: boolean;
   };
   billing: {
     plan: string;
   };
-  projects: Project[];
-};
+  documents: DocumentFile[]; // 🆕
+}
+
 
 export interface User {
   id: string;
@@ -57,4 +66,20 @@ export interface User {
   businessType: string;
   services: string[];
   profileImage: string;
+}
+
+export interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  clientId?: string;
+  projectId?: string;
+  dueDate?: string; // ISO date string
+  priority: "low" | "medium" | "high";
+  status: "todo" | "in-progress" | "done";
+  createdAt: string;
+}
+
+export interface PlannerView {
+  mode: "kanban" | "calendar";
 }

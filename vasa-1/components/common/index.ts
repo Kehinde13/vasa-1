@@ -1,4 +1,4 @@
 export { Button } from "./Button";
 export { Input } from "./Input";
-export { Card, CardHeader, CardTitle, CardContent } from "./Card";
+export { Card, CardHeader, CardContent } from "./Card";
 export { Textarea } from "./Textarea";

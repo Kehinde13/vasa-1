@@ -25,6 +25,7 @@ export const dummyClients: Client[] = [
         priority: "High",
       },
     ],
+    documents: [],
   },
   {
     id: "c2",
@@ -56,6 +57,7 @@ export const dummyClients: Client[] = [
         priority: "Medium",
       },
     ],
+    documents: [],
   },
   {
     id: "c3",
@@ -70,6 +72,7 @@ export const dummyClients: Client[] = [
       plan: "Hourly - $40/hr",
     },
     projects: [],
+    documents: [],
   },
 ];
 
