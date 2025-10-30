@@ -1,13 +1,19 @@
 "use client";
+
 import React from "react";
-import { dummyUser } from "@/lib/dummyData";
+import { useSession } from "next-auth/react";
 
 export default function HomePage() {
+  const { data: session } = useSession();
+
+  if (!session?.user) return null;
+  const user = session.user;
+
   return (
     <div className="flex flex-col gap-6 p-6">
       {/* Welcome Section */}
       <div className="bg-white shadow-md rounded-2xl p-6">
-        <h1 className="text-2xl font-bold text-gray-900">Welcome back, {dummyUser.fullName} 👋</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Welcome back, {user.name} 👋</h1>
         <p className="text-gray-600 mt-2">
           Here’s a quick overview of your workspace today.
         </p>

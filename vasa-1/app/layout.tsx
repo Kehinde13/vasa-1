@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import GlobalLayout from "@/components/layout/GlobalLayout";
+import SessionWrapper from "@/components/auth/SessionWrapper";
 
 export const metadata: Metadata = {
   title: "VAsA – Virtual Assistant’s Assistant",
@@ -15,7 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <GlobalLayout>{children}</GlobalLayout>
+        <SessionWrapper>
+          <GlobalLayout>{children}</GlobalLayout>
+        </SessionWrapper>
       </body>
     </html>
   );

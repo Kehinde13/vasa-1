@@ -1,4 +1,5 @@
 "use client";
+
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -6,6 +7,7 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 import homeIcon from "@/public/assets/icons/home-icon.png";
 import inboxIcon from "@/public/assets/icons/inbox-icon.png";
@@ -17,7 +19,7 @@ import dailyPlannerIcon from "@/public/assets/icons/dailyPlanner-icon.png";
 import settingsIcon from "@/public/assets/icons/settings-icon.png";
 import projectBoardIcon from "@/public/assets/icons/projectBoard-icon.png";
 import notepadIcon from "@/public/assets/icons/notepad-icon.png";
-import { dummyUser } from "@/lib/dummyData";
+import LogoutButton from "../auth/LogoutButton";
 
 const topItems = [
   { href: "/", label: "Home", icon: () => <Image src={homeIcon} alt="Home" width={18} height={18} /> },
@@ -50,7 +52,7 @@ function NavSection({ items, pathname, onClick }: { items: typeof topItems; path
             href={item.href}
             onClick={onClick}
             className={cn(
-              "flex items-center gap-2 rounded-xl px-3 py-2 text-gray-700 hover:bg-gray-100",
+              "flex items-center gap-2 rounded-xl px-3 py-2 text-gray-700 hover:bg-gray-100 transition",
               active && "bg-blue-100 text-blue-700 font-medium"
             )}
           >
@@ -64,22 +66,50 @@ function NavSection({ items, pathname, onClick }: { items: typeof topItems; path
 }
 
 function UserProfile() {
+  const { data: session } = useSession();
+
+  if (!session?.user) return null;
+
+  const user = session.user;
+  const initials =
+    user.name
+      ?.split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase() || "?";
+
   return (
-    <div className="flex items-center gap-3 mb-6">
-      {/* Profile Picture Placeholder */}
-      <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center text-white font-semibold">
-        {dummyUser.fullName.split(" ").map((n) => n[0]).join("")}
+    <Link href="/profile" className="flex items-center gap-3 mb-6 hover:bg-gray-50 p-2 rounded-lg transition">
+      {/* Profile Picture or Initials */}
+      {user.image ? (
+        <Image
+          src={user.image}
+          alt={user.name || "User"}
+          width={40}
+          height={40}
+          className="rounded-full object-cover flex-shrink-0"
+        />
+      ) : (
+        <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold flex-shrink-0">
+          {initials}
+        </div>
+      )}
+
+      {/* Username - with overflow handling */}
+      <div className="min-w-0 flex-1">
+        <p className="font-medium text-gray-800 truncate">{user.name}</p>
+        <p className="text-sm text-gray-500 truncate">{user.email}</p>
       </div>
-      {/* Username */}
-      <div>
-        <p className="font-medium text-gray-800">{dummyUser.fullName}</p>
-        <p className="text-sm text-gray-500">{dummyUser.role}</p>
-      </div>
-    </div>
+    </Link>
   );
 }
 
-export default function SidebarNav({ open, setOpen }: { open: boolean; setOpen: (val: boolean) => void }) {
+interface SidebarNavProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export default function SidebarNav({ open, onOpenChange }: SidebarNavProps) {
   const pathname = usePathname();
 
   return (
@@ -94,45 +124,52 @@ export default function SidebarNav({ open, setOpen }: { open: boolean; setOpen: 
               <NavSection items={middleItems} pathname={pathname} />
             </div>
           </div>
-          <NavSection items={bottomItems} pathname={pathname} />
+          <div>
+            <NavSection items={bottomItems} pathname={pathname} />
+            <LogoutButton />
+          </div>
         </aside>
       </div>
 
-      {/* Mobile Sidebar Overlay */}
+      {/* Mobile Sidebar */}
       <AnimatePresence>
         {open && (
           <>
             <motion.div
-              className="fixed inset-0 bg-black/40 z-40"
+              className="fixed inset-0 bg-black/40 z-40 md:hidden"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setOpen(false)}
+              onClick={() => onOpenChange(false)}
             />
-
             <motion.aside
               initial={{ x: -300 }}
               animate={{ x: 0 }}
               exit={{ x: -300 }}
               transition={{ type: "tween" }}
-              className="fixed top-0 left-0 h-full w-64 bg-white shadow-md p-4 flex flex-col justify-between z-50"
+              className="fixed top-0 left-0 h-full w-64 bg-white shadow-md p-4 flex flex-col justify-between z-50 md:hidden"
             >
               <div>
                 <div className="flex justify-between items-center mb-6">
                   <h1 className="text-2xl text-black font-bold">VAsA</h1>
-                  <button onClick={() => setOpen(false)}>
+                  <button 
+                    onClick={() => onOpenChange(false)}
+                    className="p-1 hover:bg-gray-100 rounded-lg transition"
+                    aria-label="Close menu"
+                  >
                     <X size={24} />
                   </button>
                 </div>
-
                 <UserProfile />
-                <NavSection items={topItems} pathname={pathname} onClick={() => setOpen(false)} />
+                <NavSection items={topItems} pathname={pathname} onClick={() => onOpenChange(false)} />
                 <div className="mt-4">
-                  <NavSection items={middleItems} pathname={pathname} onClick={() => setOpen(false)} />
+                  <NavSection items={middleItems} pathname={pathname} onClick={() => onOpenChange(false)} />
                 </div>
               </div>
-
-              <NavSection items={bottomItems} pathname={pathname} onClick={() => setOpen(false)} />
+              <div>
+                <NavSection items={bottomItems} pathname={pathname} onClick={() => onOpenChange(false)} />
+                <LogoutButton />
+              </div>
             </motion.aside>
           </>
         )}
