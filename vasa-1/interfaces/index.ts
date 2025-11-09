@@ -31,6 +31,7 @@ export interface ProjectModalProps {
 }
 
 export interface DocumentFile {
+  createdAt: any;
   id: string;
   name: string;
   type: string;
