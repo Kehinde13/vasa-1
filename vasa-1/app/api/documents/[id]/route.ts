@@ -5,7 +5,9 @@ import { prisma } from "@/lib/prisma";
 
 export async function DELETE(
   req: NextRequest,
-  context: { params: { id: string } }
+  context:
+    | { params: { id: string } }
+    | { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -14,7 +16,8 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const documentId = context.params.id;
+    const params = await Promise.resolve(context.params);
+    const documentId = params.id;
 
     const document = await prisma.document.findFirst({
       where: {
@@ -26,10 +29,15 @@ export async function DELETE(
     });
 
     if (!document) {
-      return NextResponse.json({ error: "Document not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Document not found" },
+        { status: 404 }
+      );
     }
 
-    await prisma.document.delete({ where: { id: documentId } });
+    await prisma.document.delete({
+      where: { id: documentId },
+    });
 
     return NextResponse.json(
       { message: "Document deleted successfully" },
@@ -37,6 +45,9 @@ export async function DELETE(
     );
   } catch (error) {
     console.error("Error deleting document:", error);
-    return NextResponse.json({ error: "Failed to delete document" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to delete document" },
+      { status: 500 }
+    );
   }
 }
